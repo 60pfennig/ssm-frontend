@@ -2,6 +2,7 @@ import { Result } from "ts-results";
 import { apiCall, getApiCall } from "@/lib/apiCall";
 import { Sound } from "@/types/domain/types";
 import qs from "qs";
+import { isSoundMedia } from "@/lib/type-guards/isSoundMEdia";
 
 const BASE_URI = process.env.NEXT_PUBLIC_CMS_BASE_URI;
 class SoundsService {
@@ -22,7 +23,20 @@ class SoundsService {
     );
     return getApiCall({
       path: this.baseUri + "/api/sounds" + query,
-      map: (data) => data.docs,
+      map: (data) => {
+        const sounds = data.docs as Sound[];
+        return sounds.map((sound) => ({
+          ...sound,
+          audioFile: isSoundMedia(sound.audioFile)
+            ? {
+                ...sound.audioFile,
+                url:
+                  process.env.NEXT_PUBLIC_CMS_BASE_URI + sound.audioFile.url ||
+                  "",
+              }
+            : sound.audioFile,
+        }));
+      },
     });
   }
 }
