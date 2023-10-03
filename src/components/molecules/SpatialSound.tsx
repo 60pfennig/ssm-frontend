@@ -7,6 +7,7 @@ import { Howl } from "howler";
 
 type Props = {
   pos: { x: number; y: number };
+  earPos: { x: number; y: number };
   audioFileUri: string;
   isPlaying: boolean;
 };
@@ -15,38 +16,62 @@ const SpatialSound = (props: Props) => {
   const soundHowl = useRef<null | Howl>();
 
   useEffect(() => {
+    const cleanup = () => {
+      soundHowl.current?.unload();
+      soundHowl.current = null;
+      console.log("unloding");
+    };
     console.log("creating spatial sound", props);
     if (soundHowl.current != null) {
-      console.log("already exists, changing pos");
-
-      soundHowl.current?.pos(props.pos.x, props.pos.y, 0);
-      return;
-    }
-    const isOutsideOfHearingRange = false;
-
-    const cleanup = () => soundHowl.current?.unload();
-    cleanup();
-
-    if (!isOutsideOfHearingRange) {
-      soundHowl.current = new Howl({ src: props.audioFileUri, loop: true });
-      soundHowl.current?.pos(props.pos.x, props.pos.y, 0);
-      if (props.isPlaying) {
-        soundHowl.current.play();
-        console.log("its playing");
-      }
-      console.log("its loaded");
+      console.log("already exists");
     } else {
-      console.log("somehting wetn wrong on init");
+      const isOutsideOfHearingRange = false;
+
+      if (!isOutsideOfHearingRange) {
+        cleanup();
+        soundHowl.current = new Howl({
+          src: [props.audioFileUri],
+          loop: true,
+          onloaderror: (error) => {
+            console.log("error", error);
+          },
+          onplayerror: (error) => {
+            console.log("error", error);
+          },
+          onplay: (param) => {
+            console.log("file " + param);
+          },
+        });
+        soundHowl.current.pannerAttr({
+          rolloffFactor: 4,
+          distanceModel: "inverse",
+          refDistance: 0.01,
+        });
+        console.log("its loaded");
+      } else {
+        console.log("somehting wetn wrong on init");
+      }
     }
     return () => {
+      console.log("unmounting");
       cleanup();
     };
-  }, [props.audioFileUri, props.pos, props.isPlaying]);
+  }, [props.audioFileUri]);
+
+  useEffect(() => {
+    soundHowl.current?.pos(
+      props.pos.x - props.earPos.x,
+      props.pos.y - props.earPos.y,
+      0
+    );
+  }, [props.pos, props.earPos]);
 
   useEffect(() => {
     if (props.isPlaying) {
+      //soundHowl.current?.seek(0);
       soundHowl.current?.play();
-      console.log("its playing");
+      // soundHowl.current?.volume(1);
+      console.log("its playing", soundHowl.current);
     } else {
       soundHowl.current?.pause();
       console.log("its paused");
