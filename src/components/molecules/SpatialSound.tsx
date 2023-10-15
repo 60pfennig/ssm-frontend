@@ -10,6 +10,7 @@ type Props = {
   earPos: { x: number; y: number };
   audioFileUri: string;
   isPlaying: boolean;
+  hearingDistance: number;
 };
 
 const SpatialSound = (props: Props) => {
@@ -45,7 +46,7 @@ const SpatialSound = (props: Props) => {
         soundHowl.current.pannerAttr({
           rolloffFactor: 4,
           distanceModel: "inverse",
-          refDistance: 0.01,
+          refDistance: 100,
         });
         console.log("its loaded");
       } else {
@@ -65,6 +66,12 @@ const SpatialSound = (props: Props) => {
       0
     );
   }, [props.pos, props.earPos]);
+
+  useEffect(() => {
+    soundHowl.current?.pannerAttr({
+      refDistance: props.hearingDistance,
+    });
+  }, [props.hearingDistance]);
 
   useEffect(() => {
     if (props.isPlaying) {

@@ -2,7 +2,7 @@ import { Result } from "ts-results";
 import { apiCall, getApiCall } from "@/lib/apiCall";
 import { Sound } from "@/types/domain/types";
 import qs from "qs";
-import { isSoundMedia } from "@/lib/type-guards/isSoundMEdia";
+import { isSoundMedia } from "@/lib/type-guards/isSoundMedia";
 
 const BASE_URI = process.env.NEXT_PUBLIC_CMS_BASE_URI;
 class SoundsService {
