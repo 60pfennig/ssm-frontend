@@ -33,7 +33,9 @@ function SoundMap({}: Props) {
   const { sounds } = useSounds({});
   const mapRef = useRef<L.Map | null>(null);
   const position = { lat: 51.234517, lng: 14.748265 };
-  const [currentHearRange, setCurrentHearRange] = useState(50);
+  const [currentRefDistance, setCurrentRefDistance] = useState(50);
+  const [currentRolloffFactor, setCurrentRolloffFactor] = useState(0.5);
+  const [maxHearingRange, setMaxHearingRange] = useState(1);
   const [currentHearRangeInMapWidth, setcurrentHearRangeInMapWidth] =
     useState(100);
   const mousePosition = useMousePosition();
@@ -80,6 +82,24 @@ function SoundMap({}: Props) {
     // console.log("mouspos update");
     // console.log(mapRef.current?.project(mouseEvent.latlng));
     // console.log(L.Projection.LonLat.project(mouseEvent.latlng));
+    const bounds = mapRef.current?.getPixelBounds();
+    const mapWIdth =
+      (bounds?.getBottomRight().x || 0) - (bounds?.getBottomLeft().x || 0);
+    const mapheight =
+      (bounds?.getBottomLeft().y || 0) - (bounds?.getTopLeft().y || 0);
+    console.log(
+      "width: ",
+      mapWIdth,
+      bounds?.getBottomLeft().x,
+      bounds?.getBottomRight().x
+    );
+    console.log(
+      "height: ",
+      mapheight,
+      bounds?.getBottomLeft().y,
+      bounds?.getTopLeft().y
+    );
+
     setCurrentMauseOnMap(
       mapRef.current?.project(mouseEvent.latlng) || { x: 0, y: 0 }
     );
@@ -103,6 +123,8 @@ function SoundMap({}: Props) {
     mapRef.current?.addEventListener("click", () => togglePlayer());
   }, [mapRef.current, onMouseMove]);
 
+  useEffect(() => [currentRolloffFactor, currentRefDistance]);
+
   useEffect(() => {
     Howler.volume(1);
     Howler.orientation(0, 1, 0, 0, 0, 1);
@@ -123,7 +145,11 @@ function SoundMap({}: Props) {
           url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
         />
         <LayerGroup>
-          <HearRangeIndicator pos={mousePosition} range={currentHearRange} />
+          <HearRangeIndicator
+            pos={mousePosition}
+            refDistance={currentRefDistance}
+            rolloffFactor={currentRolloffFactor}
+          />
         </LayerGroup>
         {sounds.map((sound, index) => (
           <Marker
@@ -140,7 +166,8 @@ function SoundMap({}: Props) {
           return [
             ...prev,
             <SpatialSound
-              hearingDistance={currentHearRange}
+              rolloffFactor={currentRolloffFactor}
+              refDistance={currentRefDistance}
               audioFileUri={sound.audioFile.url}
               key={"spatialsound" + sound.id}
               pos={
