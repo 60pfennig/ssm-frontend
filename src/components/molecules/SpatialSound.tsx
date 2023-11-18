@@ -45,9 +45,9 @@ const SpatialSound = (props: Props) => {
           },
         });
         soundHowl.current.pannerAttr({
-          rolloffFactor: 4,
-          distanceModel: "inverse",
-          refDistance: 100,
+          rolloffFactor: props.rolloffFactor,
+          distanceModel: "linear",
+          refDistance: props.refDistance,
         });
         console.log("its loaded");
       } else {
@@ -70,9 +70,19 @@ const SpatialSound = (props: Props) => {
 
   useEffect(() => {
     soundHowl.current?.pannerAttr({
+      ...soundHowl.current.pannerAttr,
+      coneInnerAngle: 360,
+      coneOuterAngle: 0,
+      coneOuterGain: 0,
+      maxDistance: 10000,
       refDistance: props.refDistance,
       rolloffFactor: props.rolloffFactor,
     });
+    soundHowl.current?.pos(
+      props.pos.x - props.earPos.x,
+      props.pos.y - props.earPos.y,
+      0
+    );
   }, [props.refDistance, props.rolloffFactor]);
 
   useEffect(() => {

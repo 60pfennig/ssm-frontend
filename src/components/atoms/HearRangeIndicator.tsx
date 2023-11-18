@@ -8,13 +8,22 @@ type Props = {
   refDistance: number;
 };
 
+const hearingThreshold = 1e-12;
+
 const HearRangeIndicator = (props: Props) => {
   useEffect(() => {
-    //console.log(props);
+    console.log(
+      "radius",
+      props.refDistance *
+        Math.pow(1 / hearingThreshold, 1 / props.rolloffFactor)
+    );
   }, [props]);
 
   const hearingRange = useMemo(
-    () => props.refDistance / 0.1 / props.rolloffFactor - props.refDistance,
+    //() => props.refDistance / 0.01 / props.rolloffFactor - props.refDistance,
+    () =>
+      props.refDistance *
+      Math.pow(40 / hearingThreshold, 1 / props.rolloffFactor),
     [props.refDistance, props.rolloffFactor]
   );
 

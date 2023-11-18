@@ -16,10 +16,14 @@ import { isSoundMedia } from "@/lib/type-guards/isSoundMedia";
 import { useDebugZoom } from "@/hooks/useDebugZoom";
 import HearRangeIndicator from "../atoms/HearRangeIndicator";
 import useMousePosition from "@/hooks/useMousePosition";
+import { distanceToPixel } from "@/lib/distanceToPixels";
 
 type Props = {};
 
 const MAP_TO_LOCAL_SCALING_FACTOR = 0.25;
+
+const INIT_MAX_DISTANCE = 5000;
+const INIT_ROLLOFF = 1;
 
 /**
  * See https://leaflet-extras.github.io/leaflet-providers/preview/ for tile layerss
@@ -34,18 +38,29 @@ function SoundMap({}: Props) {
   const mapRef = useRef<L.Map | null>(null);
   const position = { lat: 51.234517, lng: 14.748265 };
   const [currentRefDistance, setCurrentRefDistance] = useState(50);
-  const [currentRolloffFactor, setCurrentRolloffFactor] = useState(0.5);
+  const [currentRolloffFactor, setCurrentRolloffFactor] = useState(50);
   const [maxHearingRange, setMaxHearingRange] = useState(1);
   const [currentHearRangeInMapWidth, setcurrentHearRangeInMapWidth] =
     useState(100);
   const mousePosition = useMousePosition();
 
   const projectMouseRangeToMapRange = () => {
+    const currentZoom = mapRef.current?.getZoom();
+    const map = mapRef.current;
+    if (!currentZoom || !map) return;
+    const newRefDistance = Math.round(
+      distanceToPixel(INIT_DISTANCE, map, currentZoom)
+    );
+    const newRollofFactor = distanceToPixel(INIT_ROLLOFF, map, currentZoom);
+
+    console.log(newRefDistance, newRollofFactor);
+    setCurrentRefDistance(newRefDistance);
+    //setCurrentRolloffFactor(newRollofFactor);
     // if (!mapRef.current) return;
-    // const newRangePointInLayer = mapRef.current.containerPointToLayerPoint(
+    // const newRangePointInLayer = mapRef.current.layerPointToContainerPoint(
     //   new Point(currentHearRange, currentHearRange)
     // );
-    // console.log(newRangePointInLayer);
+    // console.log("containerToLayer", newRangePointInLayer);
     // return;
     // const containerPosMouse = new Point(
     //   currentMouseOnMap.x,
@@ -123,7 +138,7 @@ function SoundMap({}: Props) {
     mapRef.current?.addEventListener("click", () => togglePlayer());
   }, [mapRef.current, onMouseMove]);
 
-  useEffect(() => [currentRolloffFactor, currentRefDistance]);
+  useEffect(() => {}, [currentRolloffFactor, currentRefDistance]);
 
   useEffect(() => {
     Howler.volume(1);
