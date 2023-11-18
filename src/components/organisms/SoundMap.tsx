@@ -22,8 +22,10 @@ type Props = {};
 
 const MAP_TO_LOCAL_SCALING_FACTOR = 0.25;
 
-const INIT_MAX_DISTANCE = 5000;
-const INIT_ROLLOFF = 1;
+const MAX_ZOOM = 12;
+
+const INIT_MAX_DISTANCE = 500;
+const INIT_ROLLOFF = 0.1;
 
 /**
  * See https://leaflet-extras.github.io/leaflet-providers/preview/ for tile layerss
@@ -37,8 +39,11 @@ function SoundMap({}: Props) {
   const { sounds } = useSounds({});
   const mapRef = useRef<L.Map | null>(null);
   const position = { lat: 51.234517, lng: 14.748265 };
-  const [currentRefDistance, setCurrentRefDistance] = useState(50);
-  const [currentRolloffFactor, setCurrentRolloffFactor] = useState(50);
+  const [currentRefDistance, setCurrentRefDistance] = useState(1);
+  const [currentMaxDistance, setCurrentMaxDistance] =
+    useState(INIT_MAX_DISTANCE);
+  const [currentRolloffFactor, setCurrentRolloffFactor] =
+    useState(INIT_ROLLOFF);
   const [maxHearingRange, setMaxHearingRange] = useState(1);
   const [currentHearRangeInMapWidth, setcurrentHearRangeInMapWidth] =
     useState(100);
@@ -48,13 +53,16 @@ function SoundMap({}: Props) {
     const currentZoom = mapRef.current?.getZoom();
     const map = mapRef.current;
     if (!currentZoom || !map) return;
-    const newRefDistance = Math.round(
-      distanceToPixel(INIT_DISTANCE, map, currentZoom)
+    const scaleFactor = Math.pow(2, MAX_ZOOM - currentZoom);
+    const newMaxDistance = Math.round(
+      distanceToPixel(INIT_MAX_DISTANCE, map, currentZoom)
     );
-    const newRollofFactor = distanceToPixel(INIT_ROLLOFF, map, currentZoom);
 
-    console.log(newRefDistance, newRollofFactor);
-    setCurrentRefDistance(newRefDistance);
+    const newRollofFactor = scaleFactor * INIT_ROLLOFF;
+
+    console.log("new rolloff", newRollofFactor, scaleFactor);
+    setCurrentRolloffFactor(newRollofFactor);
+    //setCurrentMaxDistance(newMaxDistance);
     //setCurrentRolloffFactor(newRollofFactor);
     // if (!mapRef.current) return;
     // const newRangePointInLayer = mapRef.current.layerPointToContainerPoint(
@@ -183,6 +191,7 @@ function SoundMap({}: Props) {
             <SpatialSound
               rolloffFactor={currentRolloffFactor}
               refDistance={currentRefDistance}
+              maxDistance={currentMaxDistance}
               audioFileUri={sound.audioFile.url}
               key={"spatialsound" + sound.id}
               pos={

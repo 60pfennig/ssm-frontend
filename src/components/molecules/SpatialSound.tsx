@@ -12,6 +12,7 @@ type Props = {
   isPlaying: boolean;
   refDistance: number;
   rolloffFactor: number;
+  maxDistance: number;
 };
 
 const SpatialSound = (props: Props) => {
@@ -34,6 +35,7 @@ const SpatialSound = (props: Props) => {
         soundHowl.current = new Howl({
           src: [props.audioFileUri],
           loop: true,
+          volume: 1,
           onloaderror: (error) => {
             console.log("error", error);
           },
@@ -46,8 +48,9 @@ const SpatialSound = (props: Props) => {
         });
         soundHowl.current.pannerAttr({
           rolloffFactor: props.rolloffFactor,
-          distanceModel: "linear",
+          distanceModel: "inverse",
           refDistance: props.refDistance,
+          // maxDistance: props.maxDistance,
         });
         console.log("its loaded");
       } else {
@@ -61,6 +64,11 @@ const SpatialSound = (props: Props) => {
   }, [props.audioFileUri]);
 
   useEffect(() => {
+    console.log(
+      "marker position",
+      props.pos.x - props.earPos.x,
+      props.pos.y - props.earPos.y
+    );
     soundHowl.current?.pos(
       props.pos.x - props.earPos.x,
       props.pos.y - props.earPos.y,
@@ -74,16 +82,18 @@ const SpatialSound = (props: Props) => {
       coneInnerAngle: 360,
       coneOuterAngle: 0,
       coneOuterGain: 0,
-      maxDistance: 10000,
+      maxDistance: props.maxDistance,
       refDistance: props.refDistance,
       rolloffFactor: props.rolloffFactor,
+      distanceModel: "inverse",
     });
     soundHowl.current?.pos(
       props.pos.x - props.earPos.x,
       props.pos.y - props.earPos.y,
       0
     );
-  }, [props.refDistance, props.rolloffFactor]);
+    // soundHowl.current?.play();
+  }, [props.refDistance, props.rolloffFactor, props.maxDistance]);
 
   useEffect(() => {
     if (props.isPlaying) {

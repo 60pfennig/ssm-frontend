@@ -20,10 +20,10 @@ const HearRangeIndicator = (props: Props) => {
   }, [props]);
 
   const hearingRange = useMemo(
-    //() => props.refDistance / 0.01 / props.rolloffFactor - props.refDistance,
-    () =>
-      props.refDistance *
-      Math.pow(40 / hearingThreshold, 1 / props.rolloffFactor),
+    () => props.refDistance / 0.01 / props.rolloffFactor - props.refDistance,
+    // () =>
+    //   props.refDistance *
+    //   Math.pow(100 / hearingThreshold, 1 / props.rolloffFactor),
     [props.refDistance, props.rolloffFactor]
   );
 
