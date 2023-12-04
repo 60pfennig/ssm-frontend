@@ -1,3 +1,5 @@
+"use client";
+
 import { Point } from "@/types/domain/Points";
 import { Box } from "@chakra-ui/react";
 import React, { useEffect, useMemo } from "react";

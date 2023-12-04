@@ -1,9 +1,7 @@
-import React from "react";
-import { useRef, useEffect } from "react";
-import { Sound } from "@/types/domain/types";
-import { LatLng } from "leaflet";
-import { useMemo } from "react";
+"use client";
+
 import { Howl } from "howler";
+import { useEffect, useRef } from "react";
 
 type Props = {
   pos: { x: number; y: number };

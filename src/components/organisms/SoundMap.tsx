@@ -1,22 +1,18 @@
 "use client";
 
+import { LEAFLET_ICON } from "@/constants/LeafletIcon";
+import useMousePosition from "@/hooks/useMousePosition";
 import { useSounds } from "@/hooks/useSounds";
+import { distanceToPixel } from "@/lib/distanceToPixels";
+import { isSoundMedia } from "@/lib/type-guards/isSoundMedia";
 import { Box } from "@chakra-ui/react";
-import L, { LatLng, LeafletEvent, Point } from "leaflet";
-import React, { ReactNode } from "react";
-import { useCallback, useRef, useMemo, useEffect, useState } from "react";
+import L, { LatLng, LeafletEvent } from "leaflet";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { LayerGroup, Marker, Popup } from "react-leaflet";
 import { MapContainer } from "react-leaflet/MapContainer";
 import { TileLayer } from "react-leaflet/TileLayer";
-import { useMap } from "react-leaflet/hooks";
-import SpatialSound from "../molecules/SpatialSound";
-import { Sound } from "@/types/domain/types";
-import { LEAFLET_ICON } from "@/constants/LeafletIcon";
-import { isSoundMedia } from "@/lib/type-guards/isSoundMedia";
-import { useDebugZoom } from "@/hooks/useDebugZoom";
 import HearRangeIndicator from "../atoms/HearRangeIndicator";
-import useMousePosition from "@/hooks/useMousePosition";
-import { distanceToPixel } from "@/lib/distanceToPixels";
+import SpatialSound from "../molecules/SpatialSound";
 
 type Props = {};
 

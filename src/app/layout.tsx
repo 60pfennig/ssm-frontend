@@ -1,10 +1,8 @@
-import { ChakraProvider } from "@chakra-ui/react";
-import "./globals.css";
+import "leaflet/dist/leaflet.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Providers from "./Providers";
-import "leaflet/dist/leaflet.css";
-import Head from "next/head";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
