@@ -1,3 +1,5 @@
+import { Heading } from "@chakra-ui/react";
+import Image from "next/image";
 import React from "react";
 
 interface StartScreenProps {
@@ -21,45 +23,65 @@ const StartScreen: React.FC<StartScreenProps> = ({ description, onClick }) => {
         cursor: "pointer",
         width: "100vw",
         height: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
       }}
-      onClick={handleButtonClick}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        width="64"
-        height="64"
-        style={{ marginBottom: "16px" }}
-      >
-        {/* Hier sollte dein SVG-Code für den Kopfhörer stehen */}
-        {/* Beispiel-SVG: */}
-        <circle
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="black"
-          strokeWidth="3"
-          fill="gray"
-        />
-      </svg>
-      <p style={{ margin: "0", fontSize: "18px", fontWeight: "bold" }}>
-        {description}
-      </p>
-      <button
+      <Heading>Willkommen zur Spatial Sound Map der Lausitz</Heading>
+      <div
         style={{
-          marginTop: "10px",
-          backgroundColor: "#4CAF50",
-          color: "white",
-          padding: "10px 20px",
-          border: "none",
-          borderRadius: "5px",
-          fontSize: "16px",
-          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "row",
+          width: "30%",
         }}
-        onClick={handleButtonClick}
       >
-        Play
-      </button>
+        <Image
+          src={"/headphones.png"}
+          alt="headphones"
+          width={500}
+          height={500}
+        />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "start",
+            justifyContent: "start",
+            flexDirection: "column",
+          }}
+        >
+          <p
+            style={{
+              margin: "0",
+              fontSize: "1.2rem",
+              fontWeight: "bold",
+              textAlign: "start",
+            }}
+          >
+            Hier kannst du die Sounds der Lausitz entdecken. Um die Klänge
+            räumlich wahrnehmen zu können sind Kopfhörer notwendig.
+          </p>
+          <button
+            style={{
+              marginTop: 40,
+              backgroundColor: "#63666A",
+              color: "white",
+              padding: "10px 20px",
+              border: "none",
+              borderRadius: "5px",
+              fontSize: "16px",
+              cursor: "pointer",
+              width: 200,
+            }}
+            onClick={handleButtonClick}
+          >
+            Play
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
