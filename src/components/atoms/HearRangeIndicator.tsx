@@ -13,13 +13,7 @@ type Props = {
 const hearingThreshold = 1e-12;
 
 const HearRangeIndicator = (props: Props) => {
-  useEffect(() => {
-    console.log(
-      "radius",
-      props.refDistance *
-        Math.pow(1 / hearingThreshold, 1 / props.rolloffFactor)
-    );
-  }, [props]);
+  useEffect(() => {}, [props]);
 
   const hearingRange = useMemo(
     () => props.refDistance / 0.01 / props.rolloffFactor - props.refDistance,

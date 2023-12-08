@@ -6,13 +6,14 @@ import { useSounds } from "@/hooks/useSounds";
 import { distanceToPixel } from "@/lib/distanceToPixels";
 import { isSoundMedia } from "@/lib/type-guards/isSoundMedia";
 import { Box } from "@chakra-ui/react";
-import L, { LatLng, LeafletEvent } from "leaflet";
+import L, { LatLng, LeafletEvent, LeafletKeyboardEvent } from "leaflet";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
-import { LayerGroup, Marker, Popup } from "react-leaflet";
+import { LayerGroup, LayersControl, Marker, Pane, Popup } from "react-leaflet";
 import { MapContainer } from "react-leaflet/MapContainer";
 import { TileLayer } from "react-leaflet/TileLayer";
 import HearRangeIndicator from "../atoms/HearRangeIndicator";
 import SpatialSound from "../molecules/SpatialSound";
+import StartScreen from "../molecules/StartScreen";
 
 type Props = {};
 
@@ -35,6 +36,9 @@ function SoundMap({}: Props) {
   const { sounds } = useSounds({});
   const mapRef = useRef<L.Map | null>(null);
   const position = { lat: 51.234517, lng: 14.748265 };
+  const [scrollOnMouseWheel, setScrollOnMouseWheel] = useState(false);
+  const [isCtrlDown, setIsCtrlDown] = useState(false);
+  const [scrollDelta, setScrollDelta] = useState(0);
   const [currentRefDistance, setCurrentRefDistance] = useState(1);
   const [currentMaxDistance, setCurrentMaxDistance] =
     useState(INIT_MAX_DISTANCE);
@@ -44,80 +48,25 @@ function SoundMap({}: Props) {
   const [currentHearRangeInMapWidth, setcurrentHearRangeInMapWidth] =
     useState(100);
   const mousePosition = useMousePosition();
-
+  /**  This can scale the rollofffacot on zoom so it would stay the same ABSOLUTE radius instead of staying
+   *  the same pixel size and therefor getting "bigger" or "smaller" in the sound/map space beacuse of the zoom
+   * */
   const projectMouseRangeToMapRange = () => {
     const currentZoom = mapRef.current?.getZoom();
     const map = mapRef.current;
     if (!currentZoom || !map) return;
     const scaleFactor = Math.pow(2, MAX_ZOOM - currentZoom);
-    const newMaxDistance = Math.round(
-      distanceToPixel(INIT_MAX_DISTANCE, map, currentZoom)
-    );
+    const newRollofFactor = scaleFactor * currentRolloffFactor;
 
-    const newRollofFactor = scaleFactor * INIT_ROLLOFF;
-
-    console.log("new rolloff", newRollofFactor, scaleFactor);
-    setCurrentRolloffFactor(newRollofFactor);
-    //setCurrentMaxDistance(newMaxDistance);
-    //setCurrentRolloffFactor(newRollofFactor);
-    // if (!mapRef.current) return;
-    // const newRangePointInLayer = mapRef.current.layerPointToContainerPoint(
-    //   new Point(currentHearRange, currentHearRange)
-    // );
-    // console.log("containerToLayer", newRangePointInLayer);
-    // return;
-    // const containerPosMouse = new Point(
-    //   currentMouseOnMap.x,
-    //   currentMouseOnMap.y
-    // );
-    // console.log(
-    //   "mouse container ",
-    //   containerPosMouse?.subtract(mapRef.current.getPixelOrigin()),
-    //   currentMouseOnMap,
-    //   mapRef.current.getPixelOrigin()
-    // );
-    // const aPointInHearingRange: Point | undefined = containerPosMouse
-    //   ?.clone()
-    //   .add(new Point(currentHearRange, currentHearRange));
-    // console.log(
-    //   "point in hearing range container ",
-    //   aPointInHearingRange,
-    //   containerPosMouse
-    // );
-    // if (aPointInHearingRange && mapRef.current) {
-    //   const newProjecedRangePoint = mapRef.current
-    //     .containerPointToLayerPoint(aPointInHearingRange)
-    //     .clone()
-    //     .subtract(new Point(currentMouseOnMap.x, currentMouseOnMap.y));
-    //   console.log(
-    //     "point in hearing range layer substracted ",
-    //     newProjecedRangePoint
-    //   );
-    //   setcurrentHearRangeInMapWidth(newProjecedRangePoint.x);
-    // }
+    // setCurrentRolloffFactor(newRollofFactor);
   };
 
   const onMouseMove = useCallback((mouseEvent: L.LeafletMouseEvent) => {
-    // console.log("mouspos update");
-    // console.log(mapRef.current?.project(mouseEvent.latlng));
-    // console.log(L.Projection.LonLat.project(mouseEvent.latlng));
     const bounds = mapRef.current?.getPixelBounds();
     const mapWIdth =
       (bounds?.getBottomRight().x || 0) - (bounds?.getBottomLeft().x || 0);
     const mapheight =
       (bounds?.getBottomLeft().y || 0) - (bounds?.getTopLeft().y || 0);
-    console.log(
-      "width: ",
-      mapWIdth,
-      bounds?.getBottomLeft().x,
-      bounds?.getBottomRight().x
-    );
-    console.log(
-      "height: ",
-      mapheight,
-      bounds?.getBottomLeft().y,
-      bounds?.getTopLeft().y
-    );
 
     setCurrentMauseOnMap(
       mapRef.current?.project(mouseEvent.latlng) || { x: 0, y: 0 }
@@ -128,19 +77,50 @@ function SoundMap({}: Props) {
     projectMouseRangeToMapRange();
   };
 
-  const togglePlayer = useCallback(() => {
-    if (isPlaying) setIsPlaysing(false);
-    else {
-      setIsPlaysing(true);
+  const handleCtrlDown = (event: LeafletKeyboardEvent) => {
+    if (event.originalEvent.ctrlKey === true) {
+      setIsCtrlDown(true);
+      mapRef.current?.scrollWheelZoom.enable();
+      setScrollOnMouseWheel(true);
     }
-  }, [isPlaying, setIsPlaysing]);
+    event.originalEvent.preventDefault();
+  };
+
+  const handleKeyUp = (event: LeafletKeyboardEvent) => {
+    setIsCtrlDown(false);
+    mapRef.current?.scrollWheelZoom.disable();
+    setScrollOnMouseWheel(true);
+  };
+
+  const handleMouseWheel = (leafletEvent: WheelEvent) => {
+    if (!isCtrlDown)
+      setScrollDelta((delta) => {
+        const newDelta = delta + leafletEvent.deltaY;
+        const newFactor = -0.001 * newDelta;
+        console.log("new rolloff factor", newFactor);
+        console.log("new delata", newDelta);
+        if (newFactor > 0.001 && newFactor <= 6) {
+          setCurrentRolloffFactor(newFactor);
+          return newDelta;
+        }
+        return delta;
+      });
+  };
+
+  useEffect(() => {}, [scrollDelta]);
 
   useEffect(() => {
     //console.log("ready", mapRef.current);
     mapRef.current?.addEventListener("mousemove", onMouseMove);
-    mapRef.current?.addEventListener("zoomend", onZoom);
-    mapRef.current?.addEventListener("click", () => togglePlayer());
-  }, [mapRef.current, onMouseMove]);
+    mapRef.current?.addEventListener("zoom", onZoom);
+    mapRef.current?.on("keydown", handleCtrlDown);
+    mapRef.current?.on("keyup", handleKeyUp);
+    window.addEventListener("wheel", handleMouseWheel);
+
+    return () => {
+      window.removeEventListener("wheel", handleMouseWheel);
+    };
+  }, [mapRef.current]);
 
   useEffect(() => {}, [currentRolloffFactor, currentRefDistance]);
 
@@ -155,7 +135,7 @@ function SoundMap({}: Props) {
         style={{ height: "100vh", position: "relative" }}
         center={position}
         zoom={13}
-        scrollWheelZoom={true}
+        scrollWheelZoom={scrollOnMouseWheel}
         ref={mapRef}
       >
         <TileLayer
@@ -163,22 +143,31 @@ function SoundMap({}: Props) {
           //url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
         />
-        <LayerGroup>
-          <HearRangeIndicator
-            pos={mousePosition}
-            refDistance={currentRefDistance}
-            rolloffFactor={currentRolloffFactor}
-          />
-        </LayerGroup>
-        {sounds.map((sound, index) => (
-          <Marker
-            key={"soundmarker" + index}
-            position={[sound.lat, sound.lng]}
-            icon={LEAFLET_ICON}
-          >
-            <Popup>{sound.name}</Popup>
-          </Marker>
-        ))}
+        <Pane name="Sound">
+          <LayerGroup>
+            {!isPlaying && (
+              <StartScreen
+                description="Moin du kacke"
+                onClick={() => setIsPlaysing(true)}
+              />
+            )}
+            <HearRangeIndicator
+              pos={mousePosition}
+              refDistance={currentRefDistance}
+              rolloffFactor={currentRolloffFactor}
+            />
+          </LayerGroup>
+        </Pane>
+        {isPlaying &&
+          sounds.map((sound, index) => (
+            <Marker
+              key={"soundmarker" + index}
+              position={[sound.lat, sound.lng]}
+              icon={LEAFLET_ICON}
+            >
+              <Popup>{sound.name}</Popup>
+            </Marker>
+          ))}
       </MapContainer>
       {sounds.reduce<ReactNode[]>((prev, sound, index) => {
         if (isSoundMedia(sound.audioFile) && sound.audioFile.url) {

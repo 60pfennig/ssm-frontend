@@ -104,8 +104,7 @@ const SpatialSound = (props: Props) => {
       console.log("its paused");
     }
   }, [props.isPlaying]);
-
-  return <div>SpatialSound</div>;
+  return <></>;
 };
 
 export default SpatialSound;
