@@ -151,15 +151,17 @@ function SoundMap({}: Props) {
                 onClick={() => setIsPlaysing(true)}
               />
             )}
-            {isPlaying && (
-              <HearRangeIndicator
-                pos={mousePosition}
-                refDistance={currentRefDistance}
-                rolloffFactor={currentRolloffFactor}
-              />
-            )}
           </LayerGroup>
         </Pane>
+
+        {isPlaying && (
+          <HearRangeIndicator
+            pos={mousePosition}
+            refDistance={currentRefDistance}
+            rolloffFactor={currentRolloffFactor}
+          />
+        )}
+
         {isPlaying &&
           sounds.map((sound, index) => (
             <Marker
