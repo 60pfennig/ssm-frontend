@@ -5,7 +5,17 @@ import useMousePosition from "@/hooks/useMousePosition";
 import { useSounds } from "@/hooks/useSounds";
 import { distanceToPixel } from "@/lib/distanceToPixels";
 import { isSoundMedia } from "@/lib/type-guards/isSoundMedia";
-import { Box } from "@chakra-ui/react";
+import {
+  Box,
+  Card,
+  CardBody,
+  CardHeader,
+  Flex,
+  Heading,
+  Image,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import L, { LatLng, LeafletEvent, LeafletKeyboardEvent } from "leaflet";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { LayerGroup, LayersControl, Marker, Pane, Popup } from "react-leaflet";
@@ -14,6 +24,7 @@ import { TileLayer } from "react-leaflet/TileLayer";
 import HearRangeIndicator from "../atoms/HearRangeIndicator";
 import SpatialSound from "../molecules/SpatialSound";
 import StartScreen from "../molecules/StartScreen";
+import { MdAudiotrack } from "react-icons/md";
 
 type Props = {};
 
@@ -145,12 +156,7 @@ function SoundMap({}: Props) {
         />
         <Pane name="Sound">
           <LayerGroup>
-            {!isPlaying && (
-              <StartScreen
-                description="Moin du kacke"
-                onClick={() => setIsPlaysing(true)}
-              />
-            )}
+            {!isPlaying && <StartScreen onClick={() => setIsPlaysing(true)} />}
           </LayerGroup>
         </Pane>
 
@@ -169,7 +175,32 @@ function SoundMap({}: Props) {
               position={[sound.lat, sound.lng]}
               icon={LEAFLET_ICON}
             >
-              <Popup>{sound.name}</Popup>
+              <Popup maxWidth={2000}>
+                <VStack>
+                  <Flex
+                    direction={"row"}
+                    align={"center"}
+                    gap={2}
+                    alignSelf={"start"}
+                  >
+                    <MdAudiotrack />
+
+                    <Text display={"inline"} margin={0} fontSize={"large"}>
+                      {sound.name}
+                    </Text>
+                  </Flex>
+                  {typeof sound.image === "object" &&
+                  sound.image.url !== undefined ? (
+                    <Box w={500}>
+                      <Image
+                        alt="image for sound"
+                        src={sound.image.url}
+                        w={"100%"}
+                      />
+                    </Box>
+                  ) : null}
+                </VStack>
+              </Popup>
             </Marker>
           ))}
       </MapContainer>

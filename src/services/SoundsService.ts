@@ -37,6 +37,17 @@ class SoundsService {
                     : "",
               }
             : sound.audioFile,
+          image:
+            typeof sound.image === "object"
+              ? {
+                  ...sound.image,
+                  url:
+                    process.env.NEXT_PUBLIC_CMS_BASE_URI !== undefined &&
+                    sound.image.url !== undefined
+                      ? process.env.NEXT_PUBLIC_CMS_BASE_URI + sound.image.url
+                      : "",
+                }
+              : sound.image,
         }));
       },
     });
