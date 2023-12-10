@@ -108,8 +108,7 @@ function SoundMap({}: Props) {
       setScrollDelta((delta) => {
         const newDelta = delta + leafletEvent.deltaY;
         const newFactor = -0.001 * newDelta;
-        console.log("new rolloff factor", newFactor);
-        console.log("new delata", newDelta);
+
         if (newFactor > 0.001 && newFactor <= 6) {
           setCurrentRolloffFactor(newFactor);
           return newDelta;

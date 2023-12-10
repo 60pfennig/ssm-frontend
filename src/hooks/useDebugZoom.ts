@@ -13,15 +13,9 @@ export const useDebugZoom = () => {
   const [prevZoomLevel, setPrevZoomLevel] = useState(-1);
 
   const onZoomChange = (newZoom: number, map: Map) => {
-    console.log("zoom change", newZoom, prevZoomLevel);
-
     const newAbsLeftCOrnerLatLng = map.unproject(new Point(0, 0));
     const newAbsLeftPoint = Projection.LonLat.project(newAbsLeftCOrnerLatLng);
     if (prevZoomLevel !== -1) {
-      console.log("x-zoom scale", prevLeftCorner.x, newAbsLeftPoint.x);
-      console.log(prevLeftCorner.x / newAbsLeftPoint.x);
-      console.log("y-zoom scale");
-      console.log(prevLeftCorner.y / newAbsLeftPoint.y);
     }
     setPrevCorner(newAbsLeftPoint);
     setPrevZoomLevel(newZoom);

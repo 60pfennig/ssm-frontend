@@ -20,11 +20,8 @@ const SpatialSound = (props: Props) => {
     const cleanup = () => {
       soundHowl.current?.unload();
       soundHowl.current = null;
-      console.log("unloding");
     };
-    console.log("creating spatial sound", props);
     if (soundHowl.current != null) {
-      console.log("already exists");
     } else {
       const isOutsideOfHearingRange = false;
 
@@ -50,23 +47,16 @@ const SpatialSound = (props: Props) => {
           refDistance: props.refDistance,
           // maxDistance: props.maxDistance,
         });
-        console.log("its loaded");
       } else {
         console.log("somehting wetn wrong on init");
       }
     }
     return () => {
-      console.log("unmounting");
       cleanup();
     };
   }, [props.audioFileUri]);
 
   useEffect(() => {
-    console.log(
-      "marker position",
-      props.pos.x - props.earPos.x,
-      props.pos.y - props.earPos.y
-    );
     soundHowl.current?.pos(
       props.pos.x - props.earPos.x,
       props.pos.y - props.earPos.y,
@@ -98,10 +88,8 @@ const SpatialSound = (props: Props) => {
       //soundHowl.current?.seek(0);
       soundHowl.current?.play();
       // soundHowl.current?.volume(1);
-      console.log("its playing", soundHowl.current);
     } else {
       soundHowl.current?.pause();
-      console.log("its paused");
     }
   }, [props.isPlaying]);
   return <></>;
