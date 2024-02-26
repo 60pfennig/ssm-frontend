@@ -6,7 +6,7 @@ interface StartScreenProps {
   onClick: () => void;
 }
 
-const StartScreen: React.FC<StartScreenProps> = ({ description, onClick }) => {
+const StartScreen: React.FC<StartScreenProps> = ({ onClick }) => {
   const handleButtonClick = () => {
     onClick();
   };
