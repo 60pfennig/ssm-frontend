@@ -20,7 +20,6 @@ export async function apiCall<T>({
       method: method,
       data,
     });
-    console.log("response for apiCall", response);
 
     if (response.status === 200) {
       return new Ok(map ? map(response.data) : response.data);

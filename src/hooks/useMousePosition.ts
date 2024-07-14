@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 const useMousePosition = () => {
   const [mousePosition, setMousePosition] = React.useState({
