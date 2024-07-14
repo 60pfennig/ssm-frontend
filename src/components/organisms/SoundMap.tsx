@@ -3,28 +3,17 @@
 import { LEAFLET_ICON } from "@/constants/LeafletIcon";
 import useMousePosition from "@/hooks/useMousePosition";
 import { useSounds } from "@/hooks/useSounds";
-import { distanceToPixel } from "@/lib/distanceToPixels";
 import { isSoundMedia } from "@/lib/type-guards/isSoundMedia";
-import {
-  Box,
-  Card,
-  CardBody,
-  CardHeader,
-  Flex,
-  Heading,
-  Image,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Flex, Image, Text, VStack } from "@chakra-ui/react";
 import L, { LatLng, LeafletEvent, LeafletKeyboardEvent } from "leaflet";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
-import { LayerGroup, LayersControl, Marker, Pane, Popup } from "react-leaflet";
+import { MdAudiotrack } from "react-icons/md";
+import { LayerGroup, Marker, Pane, Popup } from "react-leaflet";
 import { MapContainer } from "react-leaflet/MapContainer";
 import { TileLayer } from "react-leaflet/TileLayer";
 import HearRangeIndicator from "../atoms/HearRangeIndicator";
 import SpatialSound from "../molecules/SpatialSound";
 import StartScreen from "../molecules/StartScreen";
-import { MdAudiotrack } from "react-icons/md";
 
 type Props = {};
 
@@ -51,13 +40,10 @@ function SoundMap({}: Props) {
   const [isCtrlDown, setIsCtrlDown] = useState(false);
   const [scrollDelta, setScrollDelta] = useState(0);
   const [currentRefDistance, setCurrentRefDistance] = useState(1);
-  const [currentMaxDistance, setCurrentMaxDistance] =
-    useState(INIT_MAX_DISTANCE);
-  const [currentRolloffFactor, setCurrentRolloffFactor] =
-    useState(INIT_ROLLOFF);
+  const [currentMaxDistance, setCurrentMaxDistance] = useState(INIT_MAX_DISTANCE);
+  const [currentRolloffFactor, setCurrentRolloffFactor] = useState(INIT_ROLLOFF);
   const [maxHearingRange, setMaxHearingRange] = useState(1);
-  const [currentHearRangeInMapWidth, setcurrentHearRangeInMapWidth] =
-    useState(100);
+  const [currentHearRangeInMapWidth, setcurrentHearRangeInMapWidth] = useState(100);
   const mousePosition = useMousePosition();
   /**  This can scale the rollofffacot on zoom so it would stay the same ABSOLUTE radius instead of staying
    *  the same pixel size and therefor getting "bigger" or "smaller" in the sound/map space beacuse of the zoom
@@ -74,14 +60,10 @@ function SoundMap({}: Props) {
 
   const onMouseMove = useCallback((mouseEvent: L.LeafletMouseEvent) => {
     const bounds = mapRef.current?.getPixelBounds();
-    const mapWIdth =
-      (bounds?.getBottomRight().x || 0) - (bounds?.getBottomLeft().x || 0);
-    const mapheight =
-      (bounds?.getBottomLeft().y || 0) - (bounds?.getTopLeft().y || 0);
+    const mapWIdth = (bounds?.getBottomRight().x || 0) - (bounds?.getBottomLeft().x || 0);
+    const mapheight = (bounds?.getBottomLeft().y || 0) - (bounds?.getTopLeft().y || 0);
 
-    setCurrentMauseOnMap(
-      mapRef.current?.project(mouseEvent.latlng) || { x: 0, y: 0 }
-    );
+    setCurrentMauseOnMap(mapRef.current?.project(mouseEvent.latlng) || { x: 0, y: 0 });
   }, []);
 
   const onZoom = (event: LeafletEvent) => {
@@ -153,10 +135,13 @@ function SoundMap({}: Props) {
           //url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
         />
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          //url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+        />
         <Pane name="Sound">
-          <LayerGroup>
-            {!isPlaying && <StartScreen onClick={() => setIsPlaysing(true)} />}
-          </LayerGroup>
+          <LayerGroup>{!isPlaying && <StartScreen onClick={() => setIsPlaysing(true)} />}</LayerGroup>
         </Pane>
 
         {isPlaying && (
@@ -169,33 +154,19 @@ function SoundMap({}: Props) {
 
         {isPlaying &&
           sounds.map((sound, index) => (
-            <Marker
-              key={"soundmarker" + index}
-              position={[sound.lat, sound.lng]}
-              icon={LEAFLET_ICON}
-            >
+            <Marker key={"soundmarker" + index} position={[sound.lat, sound.lng]} icon={LEAFLET_ICON}>
               <Popup maxWidth={2000}>
                 <VStack>
-                  <Flex
-                    direction={"row"}
-                    align={"center"}
-                    gap={2}
-                    alignSelf={"start"}
-                  >
+                  <Flex direction={"row"} align={"center"} gap={2} alignSelf={"start"}>
                     <MdAudiotrack />
 
                     <Text display={"inline"} margin={0} fontSize={"large"}>
                       {sound.name}
                     </Text>
                   </Flex>
-                  {typeof sound.image === "object" &&
-                  sound.image.url !== undefined ? (
+                  {typeof sound.image === "object" && sound.image.url !== undefined ? (
                     <Box w={500}>
-                      <Image
-                        alt="image for sound"
-                        src={sound.image.url}
-                        w={"100%"}
-                      />
+                      <Image alt="image for sound" src={sound.image.url} w={"100%"} />
                     </Box>
                   ) : null}
                 </VStack>
