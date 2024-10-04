@@ -22,7 +22,7 @@ const MAP_TO_LOCAL_SCALING_FACTOR = 0.25;
 const MAX_ZOOM = 12;
 
 const INIT_MAX_DISTANCE = 500;
-const INIT_ROLLOFF = 0.1;
+const INIT_ROLLOFF = 0.5;
 
 /**
  * See https://leaflet-extras.github.io/leaflet-providers/preview/ for tile layerss
@@ -131,15 +131,11 @@ function SoundMap({}: Props) {
         ref={mapRef}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution='&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'
           //url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+          url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
         />
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          //url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
-        />
+
         <Pane name="Sound">
           <LayerGroup>{!isPlaying && <StartScreen onClick={() => setIsPlaysing(true)} />}</LayerGroup>
         </Pane>
